@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    </head>
+
+<a href="decisionmakerballots.html"> show ballots</a>
+ 
+    <body style="text-align:center">
+        <div align="center">
+            <h2> Voting Form</h2>
+ 
+            <form method="POST" action="http://localhost:8080/decisionmaker/v1/vote">
+
+		<input type="hidden" id="id" name="id" value="" />
+
+                <table>
+                    <tr>
+                        <td id="name"></td>
+                    </tr>
+ 
+                    <tr>
+                        <td id="description"></td>
+                    </tr>
+ 
+                    <tr>
+                        <td id="txt_option0"></td>
+                        <td><select id="option0"></select></td>
+                    </tr>
+ 
+                    <tr>
+                        <td id="txt_option1"></td>
+                        <td><select id="option1"></select></td>
+                    </tr>
+ 
+                    <tr>
+                        <td id="txt_option2"></td>
+                        <td><select id="option2"></select></td>
+                    </tr>
+ 
+                    <tr>
+                        <td><input type="submit"/></td>
+                    </tr>
+                </table>
+            </form>
+ 
+            <script type="text/javascript">
+
+    
+                $('form').submit(function () {
+		    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: JSON.stringify($(this).serializeArray()),
+                        contentType: 'application/json',
+                        success: function (data) {
+                            //alert('Ballot updated!! :-)'+data)
+			window.location.href = 'decisionmakerballots.html'; 
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+			    	
+                        }
+                    })
+ 
+                    return false
+                })
+ 
+            </script>
+
+<script>
+var options = decodeURIComponent(window.location.search.slice(1))
+                      .split('&')
+                      .reduce(function _reduce (/*Object*/ a, /*String*/ b) {
+                        b = b.split('=');
+                        a[b[0]] = b[1];
+                        return a;
+                      }, {});
+
+
+$.ajax({
+                        url: 'http://localhost:8080/decisionmaker/v1/ballots/'+options['id'],
+                        type: 'GET',
+                        contentType: 'application/json',
+                         success: function (data) {
+			    
+			    $("#id").val(data.ballot.id);
+                            $("#name").html(data.ballot.name);
+                            $("#description").html(data.ballot.description);
+                            $("#txt_option0").html(data.ballot.options[0].name);
+                            $("#txt_option1").html(data.ballot.options[1].name);
+                            $("#txt_option2").html(data.ballot.options[2].name);
+
+		            for (var i=0; i<data.ballot.options.length; i++) {
+                                $("#option" + i).attr('name', data.ballot.options[i].id);
+			    }
+                            
+			    for (var i=0; i<data.ballot.options.length; i++) {
+				$("#option0").append('<option value=\'' + (i + 1) + '\'>' + (i + 1) + '</option>');
+                                $("#option1").append('<option>' + (i + 1) + '</option>');
+                                $("#option2").append('<option>' + (i + 1) + '</option>');	
+			    } 
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+                                
+                        }
+                    })
+ 
+
+</script>
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    </head>
+
+<a href="decisionmakerballots.html"> show ballots</a>
+ 
+    <body style="text-align:center">
+        <div align="center">
+            <h2> Vote Results</h2>
+ 
+            <form method="POST" action="http://localhost:8080/decisionmaker/v1/vote">
+
+		<input type="hidden" id="id" name="id" value="" />
+
+                <table>
+                    <tr>
+                        <td>Total number of votes for this ballot is <span id="numberofvotes"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Simple majority <span id="simplemajority"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Two Round <span id="tworound"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Alternative <span id="alternative"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Approval <span id="approval"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Borda Count <span id="bordaCount"></span></td>
+                    </tr>
+                    <tr>
+                        <td>MBC <span id="mbc"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Serial <span id="serial"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Condorcet <span id="condorcet"></span></td>
+                    </tr>
+
+                      
+                </table> 
+ 
+
+<script>
+var options = decodeURIComponent(window.location.search.slice(1))
+                      .split('&')
+                      .reduce(function _reduce (/*Object*/ a, /*String*/ b) {
+                        b = b.split('=');
+                        a[b[0]] = b[1];
+                        return a;
+                      }, {});
+
+
+$.ajax({
+                        url: 'http://localhost:8080/decisionmaker/v1/ballot-result/'+options['id'],
+                        type: 'GET',
+                        contentType: 'application/json',
+                         success: function (data) {
+			    
+			    $("#numberofvotes").html(data.ballotAnalysis.numberOfVotes);
+                            $("#simplemajority").html(data.ballotAnalysis.simpleMajority);
+                            $("#tworound").html(data.ballotAnalysis.twoRound);
+                            $("#alternative").html(data.ballotAnalysis.alternative);
+                            $("#approval").html(data.ballotAnalysis.approval);
+                            $("#bordaCount").html(data.ballotAnalysis.bordaCount);
+                            $("#mbc").html(data.ballotAnalysis.mbc);
+                            $("#serial").html(data.ballotAnalysis.serial);
+                            $("#condorcet").html(data.ballotAnalysis.condorcet);
+
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+                                
+                        }
+                    })
+ 
+
+</script>
+
+        </div>
+    </body>
+</html>

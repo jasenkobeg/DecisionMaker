@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <import resource="message-resolver.xml" />
+    <import resource="view-resolver.xml" />
+	<import resource="view-controller-mapper.xml" />
+	<import resource="config.xml" />
+    <import resource="dao-transaction.xml" />
+    <import resource="dao.xml" />
+    <import resource="services.xml" />
+    <import resource="utils.xml" />
+    
+    <!-- 
+    <import resource="datasource-prod.xml" />
+    <import resource="datasource-dev.xml" />
+     -->
+    <import resource="datasource-dev.xml" />
+</beans>

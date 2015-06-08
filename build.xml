@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+
+<project name="DecisionMakerWebService" basedir="." default="all">
+
+	<description>
+        Build script for the Decision Maker RESTful web service. 
+    </description>
+
+	<property name="name" value="decisionmaker" />
+
+	<property environment="env" />
+
+	<property name="war.dir" value="web" />
+	<property name="src.dir" value="src" />
+	<property name="config.dir" value="config" />
+	<property name="build.dir" value=".classes" />
+	<property name="webinf.dir" value="${war.dir}/WEB-INF" />
+	<property name="dist.dir" value="dist" />
+	<property name="docs.report.dir" value="docs/report" />
+	<property name="docs.report.api.dir" value="${docs.report.dir}/api" />
+	<property name="lib.dir" value="lib" />
+	<property name="spring.lib.dir" value="${lib.dir}/spring-3.1.3" />
+	<property name="server.home" value="/var/lib/tomcat7/webapps/" />
+
+	<!-- =================================================================== -->
+	<!-- Master classpath; included in the distribution                      -->
+	<!-- =================================================================== -->
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${spring.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<!-- =================================================================== -->
+	<!-- Support classpart; needed for the compilation                       -->
+	<!-- =================================================================== -->
+	<path id="support-classpath">
+		<fileset file="${lib.dir}/support/*.jar" />
+		<fileset file="/usr/share/tomcat7/lib/servlet-api.jar" />
+	</path>
+	
+
+	<!-- =================================================================== -->
+	<!-- Deploys the latest artifact to the server                           -->
+	<!-- =================================================================== -->
+	<target name="deploy" depends="warfile" description="--> Deploys the WAR artifacts to the server">
+		<copy todir="${server.home}" preservelastmodified="last" file="${dist.dir}/${name}.war" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Ensure that build.version is set.                                   -->
+	<!-- =================================================================== -->
+	<target name="build-version-check">
+
+		<tstamp>
+			<format property="touch.time" pattern="dd-MMM-yyyy_hh-mm-ss" />
+		</tstamp>
+
+		<condition property="build.version" value="${build.version}" else="local-${touch.time}">
+			<isset property="build.version" />
+		</condition>
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Clean up the build and distributed artifacts                        -->
+	<!-- =================================================================== -->
+	<target name="clean" description="--> Cleans output dirs (build, weblib, dist)">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Compiles the code and builds the jar artifacts                      -->
+	<!-- =================================================================== -->
+	<target name="build" depends="build-version-check">
+
+		<echo message="------------------------------------------------------------" />
+        <echo message=" Bulding version [${build.version}]" />
+        <echo message="------------------------------------------------------------" />
+		
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		
+		<javac destdir="${build.dir}" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}" />
+			<classpath refid="master-classpath" />
+			<classpath refid="support-classpath" />
+		</javac>
+		
+		<copy todir="${build.dir}" preservelastmodified="true">
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		
+		<tstamp />
+
+		<jar jarfile="${dist.dir}/${name}.jar" compress="true" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Manifest-Version" value="${build.version}" />
+				<attribute name="Built-By" value="Christina B." />
+				<section name="decisionmaker-rest-webservices">
+					<attribute name="Specification-Title" value="Decision Maker RESTful WebServices" />
+					<attribute name="Specification-Version" value="${build.version}" />
+					<attribute name="Specification-Vendor" value="Aphelion Ltd." />
+					<attribute name="Implementation-Title" value="Decision Maker" />
+					<attribute name="Implementation-Version" value="${build.version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="Aphelion Ltd." />
+				</section>
+			</manifest>
+		</jar>
+
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Creates a deployable artifact                                       -->
+	<!-- =================================================================== -->
+	<target name="warfile" depends="build" description="--> Builds the web application archive">
+
+		<tstamp />
+
+		<war warfile="${dist.dir}/${name}.war" basedir="${war.dir}" webxml="${war.dir}/WEB-INF/web.xml">
+			<classes dir="${webinf.dir}">
+				<include name="log4j.properties" />
+			</classes>
+			<lib dir="${lib.dir}">
+				<include name="*.jar" />
+			</lib>
+			<lib dir="${spring.lib.dir}">
+				<include name="*.jar" />
+			</lib>
+			<lib dir="${dist.dir}">
+				<include name="${name}.jar" />
+			</lib>
+			<webinf dir="web">
+				<include name="index.html" />
+			</webinf>
+
+			<manifest>
+				<attribute name="Manifest-Version" value="${build.version}" />
+				<attribute name="Built-By" value="Christina B." />
+				<section name="decisionmaker-rest-webservices">
+					<attribute name="Specification-Title" value="Decision Maker RESTful WebServices" />
+					<attribute name="Specification-Version" value="${build.version}" />
+					<attribute name="Specification-Vendor" value="Aphelion Ltd." />
+					<attribute name="Implementation-Title" value="Decision Maker" />
+					<attribute name="Implementation-Version" value="${build.version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="Aphelion Ltd." />
+				</section>
+			</manifest>
+		</war>
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Generates API                                                       -->
+	<!-- =================================================================== -->
+	<target name="generate-api" description="--> Generates the Java API for this component">
+
+		<mkdir dir="${docs.report.dir}" />
+		<mkdir dir="${docs.report.api.dir}" />
+
+		<javadoc packagenames="ie.aphelion.*" sourcepath="${src.dir}" defaultexcludes="yes" destdir="${docs.report.api.dir}" author="true" version="true" use="true" windowtitle="Decision Maker RESTful API">
+			<classpath refid="master-classpath" />
+			<classpath refid="support-classpath" />
+			<doctitle>
+				<![CDATA[<h1>Decision Maker RESTful API</h1>]]></doctitle>
+		<bottom>
+			<![CDATA[<i>Copyright (c) 2012-2013 Aphelion Ltd.  All rights reserved.</i>]]></bottom>
+
+	<link href="http://java.sun.com/javase/6/docs/api/" />
+	<link href="http://static.springframework.org/spring/docs/3.1.x/api/" />
+</javadoc>
+
+</target>
+
+<!-- =================================================================== -->
+<!-- Default target                                                      -->
+<!-- =================================================================== -->
+<target name="all" depends="clean,build,warfile,deploy" description="--> Performs following actions: clean, build, warfile" />
+
+</project>

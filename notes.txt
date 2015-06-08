@@ -1,0 +1,2 @@
+ - a person can vote more than once and skew the results
+ - what do results say to an average joe; we need to find a way to show the results in a more user-friendly way

@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    </head>
+
+    <body style="text-align:center">
+
+	<input id="currentpage" type="hidden" />
+        <input id="pagesize" type="hidden" />
+
+        <a href="http://localhost:8080/decisionmakercreateballot.html"> create a new ballot </a>
+
+        <div align="center">
+            <h2>Ballots</h2>
+
+                <table id="results">
+                    
+                </table>
+
+<br/>
+ <a id="previous" href="#" onclick="previous()" style="float:left"> previous page </a>
+
+ <a id="next" href="#" onclick="next()" style="float:right"> next page </a>
+
+
+            </form>
+
+            <script type="text/javascript">
+
+function previous() {
+  $('#results').empty();
+  var p = parseInt($('#currentpage').val());
+  var s = parseInt($('#pagesize').val());
+
+  var start = p - 1;
+  if (start < 1) {
+    start = 1;
+  }  
+  loadresults((start), s);
+
+}
+
+function next() {
+  $('#results').empty();  
+  var p = parseInt($('#currentpage').val());
+  var s = parseInt($('#pagesize').val());
+  loadresults((p + 1), s);
+}
+   
+function loadresults(p, s) { 
+                    $.ajax({
+                        url: 'http://localhost:8080/decisionmaker/v1/ballots/page/'+p+'/page-size/'+s,
+                        type: 'GET',
+                        contentType: 'application/json',
+                         success: function (data) {
+
+			   $('#results').append('<tr><th>name</th><th>description</th><th>created</th><th>updated</th><th>action</th></tr>');
+                           
+                           $('#currentpage').val(data.ballotSearchResults.pageNumber);
+                           $('#pagesize').val(data.ballotSearchResults.numberOfResultsPerPage);
+                       
+			   for (var i=0; i<data.ballotSearchResults.ballots.length; i++) {
+			      $('#results').append('<tr><td><a href=\'http://localhost:8080/decisionmakerballot.html?id='+(data.ballotSearchResults.ballots[i].id)+'\' >' +(data.ballotSearchResults.ballots[i].name)+'</a></td>'
+			      + '<td>'+(data.ballotSearchResults.ballots[i].description)+'</td>'
+			      + '<td>'+(new Date(data.ballotSearchResults.ballots[i].created))+'</td>'
+			      + '<td>'+(new Date(data.ballotSearchResults.ballots[i].updated))+'</td>'
+			      + '<td><a href=\'#\' onclick=\'deleteBallot('+(data.ballotSearchResults.ballots[i].id)+');\' >delete</a></td>'
+                              + '<td><a href=\'http://localhost:8080/vote.html?id='+(data.ballotSearchResults.ballots[i].id)+'\'>vote</a></td>'
+                              + '<td><a href=\'http://localhost:8080/voteresults.html?id='+(data.ballotSearchResults.ballots[i].id)+'\'>results</a></td>'
+			      +'</tr>');	
+        	              //alert(data.ballotList[i].id)
+       
+			   }	
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+                                
+                        }
+                    })
+ }
+
+		    function deleteBallot(id) {
+			$.ajax({
+                          url: 'http://localhost:8080/decisionmaker/v1/ballots',
+                          type: 'DELETE',
+			  data: JSON.stringify(id),
+                          contentType: 'application/json',
+                          success: function (data) {
+
+                           $('#results').append('<tr><th>name</th><th>description</th><th>created</th><th>updated</th><th>action</th></tr>');
+			  
+			   if (data == null || data == '') {
+				location.reload(true);
+				return
+			   } 
+
+			},
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+                                
+                        }
+                    })
+		    }	
+
+loadresults(1,10);
+
+ 
+            </script>
+        </div>
+    </body>
+</html>
+                                                          
+                                                           
+                                                           

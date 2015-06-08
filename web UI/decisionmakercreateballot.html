@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    </head>
+
+<a href="decisionmakerballots.html"> show ballots</a>
+
+ 
+    <body style="text-align:center">
+        <div align="center">
+            <h2>New Ballot Form </h2>
+ 
+            <form method="POST" action="http://localhost:8080/decisionmaker/v1/ballots">
+ 
+		<input type="hidden" name="numberofoptions" value="3" />
+
+                <table>
+                    <tr>
+                        <td>Ballot name:</td>
+                        <td><input name="name"/></td>
+                    </tr>
+ 
+                    <tr>
+                        <td>Description:</td>
+                        <td><textarea name="description"></textarea></td>
+                    </tr>
+ 
+                    <tr>
+                        <td>Option 1:</td>
+                        <td><input name="option0"/></td>
+                    </tr>
+ 
+                    <tr>
+                        <td>Option 2:</td>
+                        <td><input name="option1"/></td>
+                    </tr>
+ 
+                    <tr>
+                        <td>Option 3:</td>
+                        <td><input name="option2"/></td>
+                    </tr>
+ 
+                    <tr>
+                        <td><input type="submit"/></td>
+                    </tr>
+                </table>
+            </form>
+ 
+            <script type="text/javascript">
+    
+                $('form').submit(function () {
+                    
+		    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: JSON.stringify($(this).serializeArray()),
+                        contentType: 'application/json',
+                        success: function (data) {
+                            //alert('Ballot created!! :-)'+data)
+	                    window.location.href = 'decisionmakerballots.html'; 
+			},
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('An error has occured!! :-(')
+			    	
+                        }
+                    })
+ 
+                    return false
+                })
+ 
+            </script>
+        </div>
+    </body>
+</html>

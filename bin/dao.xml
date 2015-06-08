@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    
+    <!-- Row mappers -->
+    <bean id="ballotRowMapper" class="ie.aphelion.decisionmaker.dao.mapper.BallotRowMapper" />
+    <bean id="optionRowMapper" class="ie.aphelion.decisionmaker.dao.mapper.OptionRowMapper" />
+    <bean id="voteRowMapper" class="ie.aphelion.decisionmaker.dao.mapper.VoteRowMapper" />
+    <bean id="voteDataRowMapper" class="ie.aphelion.decisionmaker.dao.mapper.VoteDataRowMapper" />
+    
+    <!-- Data access objects -->
+    
+    <bean id="abstractSpringJDBCTemplateSupport"
+        class="ie.aphelion.decisionmaker.dao.impl.AbstractSpringJDBCTemplateSupport"
+        abstract="true">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="abstractDAO" class="ie.aphelion.decisionmaker.dao.impl.AbstractDAO"
+        abstract="true" parent="abstractSpringJDBCTemplateSupport" />
+    
+    <bean id="ballotDAO" class="ie.aphelion.decisionmaker.dao.impl.BallotDAOImpl"
+        parent="abstractDAO">
+        <constructor-arg index="0" ref="ballotRowMapper" />
+    </bean>
+    
+    <bean id="optionDAO" class="ie.aphelion.decisionmaker.dao.impl.OptionDAOImpl"
+        parent="abstractDAO">
+        <constructor-arg index="0" ref="optionRowMapper" />
+    </bean>
+    
+    <bean id="voteDAO" class="ie.aphelion.decisionmaker.dao.impl.VoteDAOImpl"
+        parent="abstractDAO">
+        <constructor-arg index="0" ref="voteRowMapper" />
+    </bean>
+    
+    <bean id="voteDataDAO" class="ie.aphelion.decisionmaker.dao.impl.VoteDataDAOImpl"
+        parent="abstractDAO">
+        <constructor-arg index="0" ref="voteDataRowMapper" />
+    </bean>
+    
+</beans>
